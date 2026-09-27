@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QRCraft — Instant QR Code Generator & Downloader</title>
+  <meta name="description" content="Free, instant client-side QR code generator for URLs, Wi-Fi, and text. Download high-resolution PNG & SVG with custom colors." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234f46e5' stroke-width='2'><rect width='5' height='5' x='3' y='3' rx='1'/><rect width='5' height='5' x='16' y='3' rx='1'/><rect width='5' height='5' x='3' y='16' rx='1'/><path d='M21 16h-3a2 2 0 0 0-2 2v3m-5-9h4m-4 4h1m-5 4v.01'/></svg>" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lightweight Client-Side QR Engine (14KB) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* Custom color input swatch */
+    input[type="color"] {
+      -webkit-appearance: none;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 0;
+    }
+    input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    input[type="color"]::-webkit-color-swatch { border: 1px solid #e2e8f0; border-radius: 8px; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col selection:bg-brand-500 selection:text-white">
+
+  <!-- Top Minimal Header -->
+  <header class="w-full bg-white border-b border-slate-200/90 sticky top-0 z-30 shadow-xs">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="./index.html" class="w-9 h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center shadow-md shadow-brand-500/20 hover:bg-brand-700 transition-colors" title="Back to ToolCraft Hub">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <rect width="6" height="6" x="3" y="3" rx="1.5"/>
+            <rect width="6" height="6" x="15" y="3" rx="1.5"/>
+            <rect width="6" height="6" x="3" y="15" rx="1.5"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 15h2v2h-2zm4 0h2v2h-2zm-4 4h2v2h-2zm4 0h2v2h-2zM9 9h6v6H9z"/>
+          </svg>
+        </a>
+        <div>
+          <span class="text-base font-extrabold tracking-tight text-slate-900 block leading-tight">QRCraft</span>
+          <span class="text-[11px] font-medium text-slate-400 block -mt-0.5">Instant High-Res QR Generator</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a href="./index.html" class="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-slate-900 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors">
+          ← Hub Directory
+        </a>
+        <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          100% Client-Side Private
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Tool Stage (Placed Above The Fold) -->
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 w-full flex-1 flex flex-col justify-center">
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+      <!-- LEFT: Inputs & Customization Panel (7 Cols) -->
+      <div class="lg:col-span-7 space-y-5">
+
+        <!-- Input Type Navigation Tabs -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Content Type</span>
+            <span class="text-xs text-brand-600 font-semibold cursor-pointer hover:underline" id="btnSample">Load Sample</span>
+          </div>
+
+          <div class="grid grid-cols-4 gap-2 text-xs font-bold">
+            <button id="tabUrl" onclick="switchTab('url')" class="py-2.5 px-2 rounded-xl bg-brand-600 text-white shadow-xs transition-all flex flex-col items-center gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+              <span>Website</span>
+            </button>
+            <button id="tabText" onclick="switchTab('text')" class="py-2.5 px-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition-all flex flex-col items-center gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/></svg>
+              <span>Text</span>
+            </button>
+            <button id="tabWifi" onclick="switchTab('wifi')" class="py-2.5 px-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition-all flex flex-col items-center gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/></svg>
+              <span>Wi-Fi</span>
+            </button>
+            <button id="tabEmail" onclick="switchTab('email')" class="py-2.5 px-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition-all flex flex-col items-center gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+              <span>Email</span>
+            </button>
+          </div>
+
+          <!-- Dynamic Forms -->
+          <div id="formContainer" class="pt-2">
+            <!-- URL Field -->
+            <div id="panelUrl" class="space-y-1.5">
+              <label class="text-xs font-bold text-slate-700">Destination URL</label>
+              <input type="url" id="inputUrl" value="https://google.com" placeholder="https://yourwebsite.com" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm focus:border-brand-600 focus:ring-2 focus:ring-brand-500/10 outline-none transition-all font-mono" />
+            </div>
+
+            <!-- Plain Text Field (Hidden by default) -->
+            <div id="panelText" class="space-y-1.5 hidden">
+              <label class="text-xs font-bold text-slate-700">Plain Text / Note</label>
+              <textarea id="inputText" rows="3" placeholder="Enter any text, code, or secret notes..." class="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm focus:border-brand-600 focus:ring-2 focus:ring-brand-500/10 outline-none transition-all"></textarea>
+            </div>
+
+            <!-- Wi-Fi Form (Hidden by default) -->
+            <div id="panelWifi" class="space-y-3 hidden">
+              <div>
+                <label class="text-xs font-bold text-slate-700">Network Name (SSID)</label>
+                <input type="text" id="wifiSsid" placeholder="e.g. Home_5G" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm outline-none focus:border-brand-600" />
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="text-xs font-bold text-slate-700">Password</label>
+                  <input type="text" id="wifiPass" placeholder="Network password" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm outline-none focus:border-brand-600" />
+                </div>
+                <div>
+                  <label class="text-xs font-bold text-slate-700">Encryption</label>
+                  <select id="wifiType" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm outline-none focus:border-brand-600 bg-white">
+                    <option value="WPA">WPA / WPA2 (Default)</option>
+                    <option value="WEP">WEP</option>
+                    <option value="nopass">None (Open)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Email Form (Hidden by default) -->
+            <div id="panelEmail" class="space-y-3 hidden">
+              <div>
+                <label class="text-xs font-bold text-slate-700">Email Address</label>
+                <input type="email" id="emailTo" placeholder="contact@example.com" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm outline-none focus:border-brand-600" />
+              </div>
+              <div>
+                <label class="text-xs font-bold text-slate-700">Subject</label>
+                <input type="text" id="emailSubject" placeholder="Inquiry" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm outline-none focus:border-brand-600" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customization Controls Box -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Customization & Precision</span>
+            <button id="btnResetColors" class="text-xs text-slate-400 hover:text-slate-600">Reset Defaults</button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <!-- Foreground Color -->
+            <div class="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-slate-50/50">
+              <div>
+                <span class="text-xs font-bold text-slate-800 block">QR Color</span>
+                <span id="fgHex" class="text-[11px] font-mono text-slate-400">#000000</span>
+              </div>
+              <input type="color" id="fgColor" value="#000000" />
+            </div>
+
+            <!-- Background Color -->
+            <div class="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-slate-50/50">
+              <div>
+                <span class="text-xs font-bold text-slate-800 block">Background</span>
+                <span id="bgHex" class="text-[11px] font-mono text-slate-400">#FFFFFF</span>
+              </div>
+              <input type="color" id="bgColor" value="#ffffff" />
+            </div>
+
+            <!-- Error Correction Level -->
+            <div class="flex flex-col justify-center p-3 rounded-xl border border-slate-200 bg-slate-50/50">
+              <span class="text-xs font-bold text-slate-800 block mb-1">Error Correction</span>
+              <select id="eccLevel" class="text-xs font-semibold bg-white border border-slate-200 rounded-lg px-2 py-1 outline-none text-slate-700">
+                <option value="L">Low (7% recovery)</option>
+                <option value="M" selected>Medium (15% recovery)</option>
+                <option value="Q">Quartile (25% recovery)</option>
+                <option value="H">High (30% recovery)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Live Preview & One-Click Download Box (5 Cols) -->
+      <div class="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col items-center justify-between space-y-6">
+
+        <div class="w-full flex items-center justify-between">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Live Preview</span>
+          <span class="text-[11px] font-mono text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-bold">1024px High-Res</span>
+        </div>
+
+        <!-- Canvas Container Card -->
+        <div class="relative p-4 rounded-2xl border border-slate-100 bg-slate-50/60 shadow-inner flex items-center justify-center">
+          <canvas id="qrCanvas" class="w-64 h-64 max-w-full rounded-xl shadow-xs transition-transform duration-200 hover:scale-[1.01]"></canvas>
+        </div>
+
+        <!-- Download & Copy Actions Grid -->
+        <div class="w-full space-y-2.5">
+          <!-- Primary: Copy Image -->
+          <button id="btnCopyImage" class="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.98]">
+            <svg id="copyIcon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            <span id="copyText">Copy QR to Clipboard</span>
+          </button>
+
+          <!-- Dual High-Res Downloads -->
+          <div class="grid grid-cols-2 gap-2">
+            <button id="btnDownloadPng" class="py-2.5 px-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-all active:scale-[0.98]">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              <span>Download PNG</span>
+            </button>
+            <button id="btnDownloadSvg" class="py-2.5 px-3 rounded-xl border border-slate-300 hover:border-slate-800 text-slate-800 text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-[0.98]">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+              <span>Download SVG</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="text-[11px] text-slate-400 text-center">
+          Crystal-clear vectors for printing, business cards, stickers, and displays.
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Clean Footer -->
+  <footer class="w-full border-t border-slate-200 bg-white py-4 mt-auto">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+      <span>QRCraft — Real-time Vector QR Engine</span>
+      <span class="text-slate-400">Zero Ads · Zero Trackers · No Server Required</span>
+    </div>
+  </footer>
+
+  <!-- Instant QR Logic -->
+  <script>
+    (function () {
+      const qrCanvas = document.getElementById("qrCanvas");
+      const ctx = qrCanvas.getContext("2d");
+
+      // Form Elements
+      const inputUrl = document.getElementById("inputUrl");
+      const inputText = document.getElementById("inputText");
+      const wifiSsid = document.getElementById("wifiSsid");
+      const wifiPass = document.getElementById("wifiPass");
+      const wifiType = document.getElementById("wifiType");
+      const emailTo = document.getElementById("emailTo");
+      const emailSubject = document.getElementById("emailSubject");
+
+      // Customization Elements
+      const fgColor = document.getElementById("fgColor");
+      const bgColor = document.getElementById("bgColor");
+      const fgHex = document.getElementById("fgHex");
+      const bgHex = document.getElementById("bgHex");
+      const eccLevel = document.getElementById("eccLevel");
+      const btnResetColors = document.getElementById("btnResetColors");
+      const btnSample = document.getElementById("btnSample");
+
+      // Action Elements
+      const btnCopyImage = document.getElementById("btnCopyImage");
+      const copyText = document.getElementById("copyText");
+      const btnDownloadPng = document.getElementById("btnDownloadPng");
+      const btnDownloadSvg = document.getElementById("btnDownloadSvg");
+
+      let currentTab = "url";
+      let lastGeneratedQr = null;
+
+      // Extract Current Text Payload
+      function getPayload() {
+        if (currentTab === "url") {
+          return inputUrl.value.trim() || "https://google.com";
+        } else if (currentTab === "text") {
+          return inputText.value.trim() || "QRCraft: Instant Free QR Code";
+        } else if (currentTab === "wifi") {
+          const ssid = wifiSsid.value.trim() || "MyWiFiNetwork";
+          const pass = wifiPass.value.trim();
+          const type = wifiType.value;
+          return `WIFI:T:${type};S:${ssid};P:${pass};;`;
+        } else if (currentTab === "email") {
+          const to = emailTo.value.trim() || "hello@example.com";
+          const sub = encodeURIComponent(emailSubject.value.trim());
+          return `mailto:${to}?subject=${sub}`;
+        }
+        return "https://google.com";
+      }
+
+      // Render High-Resolution QR to Canvas & Store Structure
+      function generateQR() {
+        const payload = getPayload();
+        const ecc = eccLevel.value;
+
+        try {
+          // typeNumber 0 = auto-calculate version 1..40
+          const qr = qrcode(0, ecc);
+          qr.addData(payload);
+          qr.make();
+          lastGeneratedQr = qr;
+
+          const moduleCount = qr.getModuleCount();
+          const marginModules = 4; // Standard quiet zone
+          const totalModules = moduleCount + marginModules * 2;
+
+          // Render at crisp 1024x1024 canvas resolution
+          const targetSize = 1024;
+          qrCanvas.width = targetSize;
+          qrCanvas.height = targetSize;
+
+          const cellSize = targetSize / totalModules;
+
+          // Draw Background
+          ctx.fillStyle = bgColor.value;
+          ctx.fillRect(0, 0, targetSize, targetSize);
+
+          // Draw Modules
+          ctx.fillStyle = fgColor.value;
+          for (let row = 0; row < moduleCount; row++) {
+            for (let col = 0; col < moduleCount; col++) {
+              if (qr.isDark(row, col)) {
+                ctx.fillRect(
+                  Math.round((col + marginModules) * cellSize),
+                  Math.round((row + marginModules) * cellSize),
+                  Math.ceil(cellSize),
+                  Math.ceil(cellSize)
+                );
+              }
+            }
+          }
+        } catch (err) {
+          console.warn("Payload size exceeds current ECC limit:", err);
+        }
+      }
+
+      // Generate Clean SVG String
+      function buildSvgString() {
+        if (!lastGeneratedQr) return "";
+        const qr = lastGeneratedQr;
+        const moduleCount = qr.getModuleCount();
+        const margin = 4;
+        const total = moduleCount + margin * 2;
+        const cellSize = 10;
+        const size = total * cellSize;
+
+        let rects = "";
+        for (let r = 0; r < moduleCount; r++) {
+          for (let c = 0; c < moduleCount; c++) {
+            if (qr.isDark(r, c)) {
+              rects += `<rect x="${(c + margin) * cellSize}" y="${(r + margin) * cellSize}" width="${cellSize}" height="${cellSize}" fill="${fgColor.value}" />`;
+            }
+          }
+        }
+
+        return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}">
+  <rect width="100%" height="100%" fill="${bgColor.value}"/>
+  ${rects}
+</svg>`;
+      }
+
+      // Switch Tab Handler
+      window.switchTab = function (tab) {
+        currentTab = tab;
+        const tabs = ["tabUrl", "tabText", "tabWifi", "tabEmail"];
+        const panels = ["panelUrl", "panelText", "panelWifi", "panelEmail"];
+
+        tabs.forEach(t => {
+          const btn = document.getElementById(t);
+          btn.className = "py-2.5 px-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition-all flex flex-col items-center gap-1";
+        });
+        panels.forEach(p => document.getElementById(p).classList.add("hidden"));
+
+        const activeBtn = document.getElementById("tab" + tab.charAt(0).toUpperCase() + tab.slice(1));
+        const activePanel = document.getElementById("panel" + tab.charAt(0).toUpperCase() + tab.slice(1));
+
+        activeBtn.className = "py-2.5 px-2 rounded-xl bg-brand-600 text-white shadow-xs transition-all flex flex-col items-center gap-1";
+        activePanel.classList.remove("hidden");
+
+        generateQR();
+      };
+
+      // Reset Colors
+      btnResetColors.addEventListener("click", () => {
+        fgColor.value = "#000000";
+        bgColor.value = "#ffffff";
+        fgHex.textContent = "#000000";
+        bgHex.textContent = "#ffffff";
+        generateQR();
+      });
+
+      // Sample Loader
+      btnSample.addEventListener("click", () => {
+        if (currentTab === "url") inputUrl.value = "https://github.com";
+        if (currentTab === "text") inputText.value = "WiFi-Password-Secret-2026";
+        if (currentTab === "wifi") {
+          wifiSsid.value = "CoffeeShop_Guest";
+          wifiPass.value = "FreeLatte2026";
+        }
+        if (currentTab === "email") {
+          emailTo.value = "founder@startup.io";
+          emailSubject.value = "Partnership Inquiry";
+        }
+        generateQR();
+      });
+
+      // Color pickers sync
+      fgColor.addEventListener("input", (e) => {
+        fgHex.textContent = e.target.value.toUpperCase();
+        generateQR();
+      });
+      bgColor.addEventListener("input", (e) => {
+        bgHex.textContent = e.target.value.toUpperCase();
+        generateQR();
+      });
+      eccLevel.addEventListener("change", generateQR);
+
+      // Input listeners for real-time reactivity
+      [inputUrl, inputText, wifiSsid, wifiPass, wifiType, emailTo, emailSubject].forEach(el => {
+        el.addEventListener("input", generateQR);
+      });
+
+      // One-Click Copy Image to Clipboard
+      btnCopyImage.addEventListener("click", () => {
+        qrCanvas.toBlob(async (blob) => {
+          if (!blob) return;
+          try {
+            await navigator.clipboard.write([
+              new ClipboardItem({ "image/png": blob })
+            ]);
+            copyText.textContent = "Copied to Clipboard! ✓";
+            btnCopyImage.classList.replace("bg-slate-900", "bg-emerald-600");
+            setTimeout(() => {
+              copyText.textContent = "Copy QR to Clipboard";
+              btnCopyImage.classList.replace("bg-emerald-600", "bg-slate-900");
+            }, 1800);
+          } catch {
+            // Fallback for browsers that restrict clipboard image write
+            copyText.textContent = "Use PNG Download";
+            setTimeout(() => copyText.textContent = "Copy QR to Clipboard", 1800);
+          }
+        }, "image/png");
+      });
+
+      // Download High-Res PNG
+      btnDownloadPng.addEventListener("click", () => {
+        const link = document.createElement("a");
+        link.download = `qrcraft-${Date.now()}.png`;
+        link.href = qrCanvas.toDataURL("image/png");
+        link.click();
+      });
+
+      // Download Vector SVG
+      btnDownloadSvg.addEventListener("click", () => {
+        const svgString = buildSvgString();
+        const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.download = `qrcraft-${Date.now()}.svg`;
+        link.href = url;
+        link.click();
+        URL.revokeObjectURL(url);
+      });
+
+      // Initial Render
+      generateQR();
+    })();
+  </script>
+</body>
+</html>

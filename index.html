@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ToolCraft Hub — Developer & Productivity Utilities Directory</title>
+  <meta name="description" content="A curated directory of zero-ad, client-side, lightning-fast developer utilities. 100% private, browser-based tools." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234f46e5' stroke-width='2'><path d='M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z'/></svg>" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col selection:bg-brand-500 selection:text-white">
+
+  <!-- Header Navigation -->
+  <header class="w-full bg-white/80 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center shadow-md shadow-brand-500/20">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+          </svg>
+        </div>
+        <div>
+          <span class="text-base font-extrabold tracking-tight text-slate-900 block leading-tight">ToolCraft Hub</span>
+          <span class="text-[11px] font-medium text-slate-400 block -mt-0.5">Standalone Utilities Suite</span>
+        </div>
+      </div>
+
+      <!-- Header Highlights -->
+      <div class="flex items-center gap-3">
+        <span class="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          100% Client-Side Privacy
+        </span>
+        <a href="#directory" class="text-xs font-bold text-slate-700 hover:text-brand-600 transition-colors">
+          Browse Tools ↓
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative pt-12 pb-14 px-4 sm:px-6 bg-gradient-to-b from-white via-slate-50 to-slate-50 border-b border-slate-200/60 overflow-hidden">
+    <!-- Subtle Background Glow -->
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-brand-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="max-w-4xl mx-auto text-center relative z-10 space-y-4">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-brand-50 text-brand-700 border border-brand-100">
+        ⚡ Zero Ads · Zero Trackers · Zero Setup
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 leading-[1.15]">
+        Essential developer utilities.<br class="hidden sm:inline" />
+        <span class="text-brand-600">Engineered for pure speed.</span>
+      </h1>
+      <p class="text-sm sm:text-base text-slate-500 max-w-2xl mx-auto leading-relaxed">
+        Standalone, single-file browser tools built with zero external framework overhead. Data stays private in your browser memory.
+      </p>
+
+      <!-- Live Search / Quick Filter Bar -->
+      <div class="pt-4 max-w-md mx-auto relative">
+        <div class="relative flex items-center">
+          <svg class="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <input 
+            type="text" 
+            id="searchInput"
+            placeholder="Search utilities (e.g., password, base64, qr, text)..." 
+            class="w-full pl-10 pr-12 py-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-500/10 shadow-xs transition-all placeholder-slate-400"
+          />
+          <span class="absolute right-3 text-[10px] font-mono text-slate-400 border border-slate-200 px-1.5 py-0.5 rounded">/</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tools Directory Grid -->
+  <main id="directory" class="max-w-6xl mx-auto px-4 sm:px-6 py-12 w-full flex-1">
+
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h2 class="text-xl font-bold text-slate-900 tracking-tight">Core Web Utilities</h2>
+        <p class="text-xs text-slate-500">Click any card to launch the standalone application.</p>
+      </div>
+      <span id="toolCountBadge" class="text-xs font-mono font-semibold bg-white border border-slate-200 px-2.5 py-1 rounded-lg text-slate-600">
+        4 Tools Available
+      </span>
+    </div>
+
+    <!-- 4-Card Responsive Grid -->
+    <div id="toolsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <!-- Card 1: TextCraft -->
+      <article data-keywords="text format casing spaces lines tabs social twitter meta word count counter clean" class="tool-card group bg-white border border-slate-200/90 hover:border-brand-500/50 rounded-2xl p-6 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between hover:-translate-y-1">
+        <div>
+          <div class="flex items-start justify-between gap-4 mb-4">
+            <div class="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-100 text-brand-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 7V4h16v3M9 20h6M12 4v16"/>
+              </svg>
+            </div>
+            <span class="text-[11px] font-bold font-mono px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 uppercase tracking-wide">
+              Productivity
+            </span>
+          </div>
+
+          <h3 class="text-lg font-bold text-slate-900 group-hover:text-brand-600 transition-colors">
+            TextCraft
+          </h3>
+          <p class="text-xs font-medium text-slate-400 mb-2">Smart Text Formatter & Social Limits Counter</p>
+          <p class="text-sm text-slate-600 leading-relaxed mb-4">
+            One-click extra space stripper, newline cleaner, and tab remover. Includes instant UPPERCASE, lowercase, and Title Case conversion, plus live character limit meters for Twitter (X) and Meta descriptions.
+          </p>
+
+          <!-- Feature Tags -->
+          <div class="flex flex-wrap gap-1.5 mb-6">
+            <span class="text-[11px] font-mono font-medium px-2 py-0.5 rounded-md bg-slate-50 border border-slate-100 text-slate-600">Space & Line Cleaner</span>
+            <span class="text-[11px] font-mono font-medium px-2 py-0.5 rounded-md bg-slate-50 border border-slate-100 text-slate-600">Case Converter</span>
+            <span class="text-[11px] font-mono font-medium px-2 py-0.5 rounded-md bg-slate-50 border border-slate-100 text-slate-600">Twitter (280)</span>
+            <span class="text-[11px] font-mono font-medium px-2 py-0.5 rounded-md bg-slate-50 border border-slate-100 text-slate-600">Meta (160)</span>
+          </div>
+        </div>
+
+        <a href="./textcraft.html" class="w-full py-2.5 px-4 rounded-xl bg-slate-900 group-hover:bg-brand-600 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-sm">
+          <span>Launch Tool</span>
+          <svg class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </a>
+      </article>
+
+      <!-- Card 2: PassCraft -->
+      <article data-keywords="password generator security pass secure random csprng crypto generator" class="tool-card group bg-white border border-slate-200/90 hover:border-emerald-500/50 rounded-2xl p-6 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between hover:-translate-y-1">
+        <div>
+          <div class="flex items-start justify-between gap-4 mb-4">
+            <div class="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </div>
+            <span class="text-[11px] font-bold font-mono px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 uppercase tracking-wide">
+              Security
+            </span>
+          </div>
+
+          <h3 class="text-lg font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">
+            PassCraft
+          </h3>
+          <p class="text-xs font-medium text-slate-400 mb-2">CSPRNG Secure Password Generator</p>
+          <p class="text-sm text-slate-600 leading-relaxed mb-4">
+            Generates high-entropy passwords directly in browser memory using the Web Crypto API. Features customizable 8-64 character length sliders, character set toggles, and a 4-tier real-time strength meter.
+          </p>
+
+          <!-- Feature Tags -->
+          <div class="flex flex-wrap gap-1.5 mb-6">
+            <span class="text-[11px] font-mono font-medium px-2 py-0.5 rounded-md bg-slate-50 border border-slate-100 text-slate-600">Web Crypto API</span>
+            <span class="text-[11px] font-mono font-medium px-2 py-0.5 rounded-md bg-slate-50 border border-slate-100 text-slate-600">Entropy Meter</span>
+            <span class="text-[11px] font-mono font-medium px-2 py-0.5 rounded-md bg-slate-50 border border-slate-100 text-slate-600">Zero-Storage</span>
+          </div>
+        </div>
+
+        <a href="./passcraft.html" class="w-full py-2.5 px-4 rounded-xl bg-slate-900 group-hover:bg-emerald-600 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-sm">
+          <span>Launch Tool</span>
+          <svg class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </a>
+      </article>
+
+      <!-- Card 3: QRCraft -->
+      <article data-keywords="qr code generator download png svg wifi email url link scan" class="tool-card group bg-white border border-slate-200/90 hover:border-brand-500/50 rounded-2xl p-6 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between hover:-translate-y-1">
+        <div>
+          <div class="flex items-start justify-between gap-4 mb-4">
+            <div class="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-100 text-brand-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect width="6" height="6" x="3" y="3" rx="1.5"/>
+                <rect width="6" height="6" x="15" y="3" rx="1.5"/>
+                <rect width="6" height="6" x="3" y="15" rx="1.5"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 15h2v2h-2zm4 0h2v2h-2zm-4 4h2v2h-2zm4 0h2v2h-2zM9 9h6v6H9z"/>
+              </svg>
+            </div>
+            <span class="text-[11px] font-bold font-mono px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 uppercase tracking-wide">
+              Generator
+            </span>
+          </div>
+
+          <h3 class="text-lg font-bold text-slate-900 group-hover:text-brand-600 transition-colors">
+            QRCraft
+          </h3>
+          <p class="text-xs font-medium text-slate-400 mb-2">Instant High-Res QR Code Generator</p>
+          <p class="text-sm text-slate-600 leading-relaxed mb-4">
+            Generate clean, custom-colored QR codes for URLs, Wi-Fi credentials, and emails. Features error correction level control, live canvas rendering, and one-click 1024px PNG or vector SVG downloads.
+          </p>
+
+          <!-- Feature Tags -->
+          <div class="flex flex-wrap gap-1.5 mb-6">
+            <span class="text-[11px] font-mono font-medium px-2 py-0.5 rounded-md bg-slate-50 border border-slate-100 text-slate-600">Vector SVG</span>
+            <span class="text-[11px] font-mono font-medium px-2 py-0.5 rounded-md bg-slate-50 border border-slate-100 text-slate-600">1024px PNG</span>
+            <span class="text-[11px] font-mono font-medium px-2 py-0.5 rounded-md bg-slate-50 border border-slate-100 text-slate-600">Wi-Fi & Email</span>
+            <span class="text-[11px] font-mono font-medium px-2 py-0.5 rounded-md bg-slate-50 border border-slate-100 text-slate-600">Clipboard Copy</span>
+          </div>
+        </div>
+
+        <a href="./qrcraft.html" class="w-full py-2.5 px-4 rounded-xl bg-slate-900 group-hover:bg-brand-600 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-sm">
+          <span>Launch Tool</span>
+          <svg class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </a>
+      </article>
+
+      <!-- Card 4: Base64Craft -->
+      <article data-keywords="base64 encode decode text string binary utf8 developer tool" class="tool-card group bg-white border border-slate-200/90 hover:border-sky-500/50 rounded-2xl p-6 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between hover:-translate-y-1">
+        <div>
+          <div class="flex items-start justify-between gap-4 mb-4">
+            <div class="w-12 h-12 rounded-xl bg-sky-50 border border-sky-100 text-sky-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7 8l-4 4 4 4M17 8l4 4-4 4M14 4l-4 16"/>
+              </svg>
+            </div>
+            <span class="text-[11px] font-bold font-mono px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 uppercase tracking-wide">
+              Developer
+            </span>
+          </div>
+
+          <h3 class="text-lg font-bold text-slate-900 group-hover:text-sky-600 transition-colors">
+            Base64Craft
+          </h3>
+          <p class="text-xs font-medium text-slate-400 mb-2">UTF-8 Base64 Encoder & Decoder</p>
+          <p class="text-sm text-slate-600 leading-relaxed mb-4">
+            Instant bidirectional encoder and decoder with full UTF-8 emoji and international character support. Features real-time transformation, invalid payload error shields, and one-click input/output swapping.
+          </p>
+
+          <!-- Feature Tags -->
+          <div class="flex flex-wrap gap-1.5 mb-6">
+            <span class="text-[11px] font-mono font-medium px-2 py-0.5 rounded-md bg-slate-50 border border-slate-100 text-slate-600">UTF-8 Compliant</span>
+            <span class="text-[11px] font-mono font-medium px-2 py-0.5 rounded-md bg-slate-50 border border-slate-100 text-slate-600">Error Shield</span>
+            <span class="text-[11px] font-mono font-medium px-2 py-0.5 rounded-md bg-slate-50 border border-slate-100 text-slate-600">Swap Action</span>
+            <span class="text-[11px] font-mono font-medium px-2 py-0.5 rounded-md bg-slate-50 border border-slate-100 text-slate-600">Byte Overhead</span>
+          </div>
+        </div>
+
+        <a href="./base64craft.html" class="w-full py-2.5 px-4 rounded-xl bg-slate-900 group-hover:bg-sky-600 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-sm">
+          <span>Launch Tool</span>
+          <svg class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </a>
+      </article>
+
+    </div>
+
+    <!-- Empty State (When search has no matches) -->
+    <div id="noResults" class="hidden text-center py-16">
+      <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <h3 class="text-sm font-bold text-slate-700">No matching utilities found</h3>
+      <p class="text-xs text-slate-400 mt-1">Try searching for keywords like "password", "qr", "format", or "base64".</p>
+    </div>
+
+  </main>
+
+  <!-- Clean Footer -->
+  <footer class="w-full border-t border-slate-200 bg-white py-6 mt-auto">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-slate-800">ToolCraft Hub</span>
+        <span>— All tools operate 100% locally in your browser memory.</span>
+      </div>
+      <div class="flex items-center gap-4 text-slate-400">
+        <span>Zero Cookies</span>
+        <span>•</span>
+        <span>Zero Storage</span>
+        <span>•</span>
+        <span>Open Standards</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Search & Filter Logic -->
+  <script>
+    (function () {
+      const searchInput = document.getElementById("searchInput");
+      const cards = document.querySelectorAll(".tool-card");
+      const noResults = document.getElementById("noResults");
+      const toolCountBadge = document.getElementById("toolCountBadge");
+
+      function filterTools() {
+        const query = searchInput.value.toLowerCase().trim();
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+          const keywords = card.getAttribute("data-keywords") || "";
+          const text = card.textContent.toLowerCase();
+
+          if (keywords.includes(query) || text.includes(query)) {
+            card.classList.remove("hidden");
+            visibleCount++;
+          } else {
+            card.classList.add("hidden");
+          }
+        });
+
+        if (visibleCount === 0) {
+          noResults.classList.remove("hidden");
+          toolCountBadge.textContent = "0 Tools Found";
+        } else {
+          noResults.classList.add("hidden");
+          toolCountBadge.textContent = `${visibleCount} Tool${visibleCount === 1 ? '' : 's'} Available`;
+        }
+      }
+
+      searchInput.addEventListener("input", filterTools);
+
+      // Keyboard Shortcut '/' to focus search
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "/" && document.activeElement !== searchInput) {
+          e.preventDefault();
+          searchInput.focus();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

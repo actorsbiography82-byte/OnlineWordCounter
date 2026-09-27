@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TextCraft — Smart Text Formatter & Social Limits Counter</title>
+  <meta name="description" content="Free, instant online text formatting, case conversion, and real-time character limit counter for Twitter (X), Meta descriptions, and social media." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234f46e5' stroke-width='2'><path d='M4 7V4h16v3M9 20h6M12 4v16'/></svg>" />
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col selection:bg-brand-500 selection:text-white">
+
+  <!-- Minimal Header (Above The Fold) -->
+  <header class="w-full bg-white border-b border-slate-200/80 sticky top-0 z-30 shadow-xs">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="./index.html" class="w-9 h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center shadow-md shadow-brand-500/20 hover:bg-brand-700 transition-colors" title="Back to ToolCraft Hub">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 7V4h16v3M9 20h6M12 4v16"/>
+          </svg>
+        </a>
+        <div>
+          <span class="text-base font-bold tracking-tight text-slate-900 block leading-tight">TextCraft</span>
+          <span class="text-[11px] font-medium text-slate-400 block -mt-0.5">Formatter & Social Counter</span>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="flex items-center gap-2">
+        <a href="./index.html" class="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-slate-900 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors">
+          ← Hub Directory
+        </a>
+        <button id="btnUndo" disabled title="Undo (Ctrl+Z)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 text-slate-600 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:pointer-events-none transition-all">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a5 5 0 015 5v2m0 0l-4-4m4 4l4-4M3 10l4-4m-4 4l4 4"/></svg>
+          <span class="hidden sm:inline">Undo</span>
+        </button>
+        <button id="btnClear" title="Clear text" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-rose-200 text-rose-600 bg-rose-50/50 hover:bg-rose-100/70 transition-all">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          <span class="hidden sm:inline">Clear</span>
+        </button>
+        <button id="btnCopy" class="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold rounded-lg bg-brand-600 hover:bg-brand-700 text-white shadow-sm hover:shadow active:scale-95 transition-all">
+          <svg id="copyIcon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+          <span id="copyText">Copy Text</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 w-full flex-1 flex flex-col gap-6">
+
+    <!-- Workspace Panel (Textarea & Live Stats Ribbon) -->
+    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden flex flex-col">
+      <!-- Input Area -->
+      <div class="relative w-full">
+        <textarea
+          id="editor"
+          rows="7"
+          placeholder="Paste or type your text here to format, clean, convert case, or track character limits in real-time..."
+          class="w-full p-4 sm:p-5 text-slate-800 placeholder-slate-400 text-base leading-relaxed bg-transparent outline-none resize-y border-b border-slate-100 transition-all font-sans focus:bg-slate-50/40"
+        ></textarea>
+        <button id="btnPaste" class="absolute top-3 right-3 text-xs font-medium text-slate-400 hover:text-slate-700 bg-white/90 border border-slate-200 px-2.5 py-1 rounded-md shadow-xs backdrop-blur">
+          Paste
+        </button>
+      </div>
+
+      <!-- Real-time Metrics Ribbon -->
+      <div class="grid grid-cols-2 sm:grid-cols-6 divide-x divide-slate-100 bg-slate-50/60 text-center py-2.5 px-2">
+        <div class="px-2 py-1">
+          <div id="statChars" class="text-lg font-extrabold text-slate-900 font-mono">0</div>
+          <div class="text-[11px] font-medium text-slate-500 uppercase tracking-wider">Characters</div>
+        </div>
+        <div class="px-2 py-1">
+          <div id="statCharsNoSpaces" class="text-lg font-extrabold text-slate-900 font-mono">0</div>
+          <div class="text-[11px] font-medium text-slate-500 uppercase tracking-wider">No Spaces</div>
+        </div>
+        <div class="px-2 py-1 border-t sm:border-t-0 border-slate-100">
+          <div id="statWords" class="text-lg font-extrabold text-slate-900 font-mono">0</div>
+          <div class="text-[11px] font-medium text-slate-500 uppercase tracking-wider">Words</div>
+        </div>
+        <div class="px-2 py-1 border-t sm:border-t-0 border-slate-100">
+          <div id="statSentences" class="text-lg font-extrabold text-slate-900 font-mono">0</div>
+          <div class="text-[11px] font-medium text-slate-500 uppercase tracking-wider">Sentences</div>
+        </div>
+        <div class="px-2 py-1 border-t sm:border-t-0 border-slate-100">
+          <div id="statParagraphs" class="text-lg font-extrabold text-slate-900 font-mono">0</div>
+          <div class="text-[11px] font-medium text-slate-500 uppercase tracking-wider">Paragraphs</div>
+        </div>
+        <div class="px-2 py-1 border-t sm:border-t-0 border-slate-100">
+          <div id="statReadingTime" class="text-lg font-extrabold text-slate-900 font-mono">0m</div>
+          <div class="text-[11px] font-medium text-slate-500 uppercase tracking-wider">Read Time</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Core Controls Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+      <!-- 1. Text Formatting Options -->
+      <div class="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex items-center gap-2 mb-1.5">
+            <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-xs">
+              01
+            </div>
+            <h2 class="text-sm font-bold text-slate-900">Text Formatting</h2>
+          </div>
+          <p class="text-xs text-slate-500 mb-4">Clean redundant spaces, line breaks, and tabs with a single click.</p>
+
+          <div class="grid grid-cols-1 gap-2">
+            <button id="btnRemoveSpaces" class="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all">
+              <span>Remove Extra Spaces</span>
+              <span class="text-[10px] text-slate-400 font-mono">[&nbsp;&nbsp;] → [&nbsp;]</span>
+            </button>
+            <button id="btnRemoveBreaks" class="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all">
+              <span>Remove Line Breaks</span>
+              <span class="text-[10px] text-slate-400 font-mono">\n → " "</span>
+            </button>
+            <button id="btnCleanTabs" class="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all">
+              <span>Clean Tabs</span>
+              <span class="text-[10px] text-slate-400 font-mono">\t → " "</span>
+            </button>
+            <button id="btnStripEmptyLines" class="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all">
+              <span>Strip Empty Lines</span>
+              <span class="text-[10px] text-slate-400 font-mono">Preserve text</span>
+            </button>
+          </div>
+        </div>
+
+        <button id="btnCleanAll" class="mt-4 w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-all active:scale-[0.98]">
+          <svg class="w-3.5 h-3.5 text-amber-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 2zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 15zm8-5a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0118 10zM5 10a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 015 10zM14.95 5.05a.75.75 0 010 1.06l-1.06 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-8.9 8.9a.75.75 0 010 1.06l-1.06 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm0-8.9a.75.75 0 011.06 0l1.06 1.06a.75.75 0 01-1.06 1.06L6.05 6.11a.75.75 0 010-1.06zm8.9 8.9a.75.75 0 011.06 0l1.06 1.06a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06z"/></svg>
+          One-Click Clean All
+        </button>
+      </div>
+
+      <!-- 2. Case Conversion -->
+      <div class="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex items-center gap-2 mb-1.5">
+            <div class="w-7 h-7 rounded-lg bg-indigo-50 text-brand-600 flex items-center justify-center font-bold text-xs">
+              02
+            </div>
+            <h2 class="text-sm font-bold text-slate-900">Case Conversion</h2>
+          </div>
+          <p class="text-xs text-slate-500 mb-4">Instantly transform casing while preserving punctuation.</p>
+
+          <div class="grid grid-cols-2 gap-2">
+            <button id="btnUpper" class="w-full py-2.5 px-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 hover:bg-slate-50 hover:border-slate-300 transition-all text-center">
+              UPPERCASE
+            </button>
+            <button id="btnLower" class="w-full py-2.5 px-3 rounded-xl border border-slate-200 text-xs font-medium text-slate-800 hover:bg-slate-50 hover:border-slate-300 transition-all lowercase text-center">
+              lowercase
+            </button>
+            <button id="btnTitle" class="w-full py-2.5 px-3 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 hover:bg-slate-50 hover:border-slate-300 transition-all capitalize text-center">
+              Title Case
+            </button>
+            <button id="btnSentence" class="w-full py-2.5 px-3 rounded-xl border border-slate-200 text-xs font-medium text-slate-800 hover:bg-slate-50 hover:border-slate-300 transition-all text-center">
+              Sentence case
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between text-xs text-slate-600">
+          <span>Download formatted text</span>
+          <button id="btnDownload" class="font-semibold text-brand-600 hover:text-brand-700 inline-flex items-center gap-1">
+            <span>.txt</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3. Social Media & SEO Limits -->
+      <div class="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex items-center gap-2 mb-1.5">
+            <div class="w-7 h-7 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center font-bold text-xs">
+              03
+            </div>
+            <h2 class="text-sm font-bold text-slate-900">Social & SEO Limits</h2>
+          </div>
+          <p class="text-xs text-slate-500 mb-3">Live character counter and over-limit detection.</p>
+
+          <!-- Platform Selector Tabs -->
+          <div class="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 rounded-xl mb-4 text-xs font-semibold">
+            <button id="tabTwitter" onclick="setPlatform('twitter')" class="py-1.5 px-2 rounded-lg bg-white text-slate-900 shadow-xs transition-all">
+              Twitter / X (280)
+            </button>
+            <button id="tabMeta" onclick="setPlatform('meta')" class="py-1.5 px-2 rounded-lg text-slate-600 hover:text-slate-900 transition-all">
+              Meta SEO (160)
+            </button>
+          </div>
+
+          <!-- Active Platform Display -->
+          <div id="limitCard" class="p-3.5 rounded-xl border transition-all bg-emerald-50/60 border-emerald-200">
+            <div class="flex items-center justify-between mb-1.5">
+              <span id="targetPlatformLabel" class="text-xs font-bold text-slate-800">Twitter (X) Post</span>
+              <span id="targetRemainingBadge" class="text-xs font-extrabold font-mono text-emerald-700">280 left</span>
+            </div>
+            <div class="w-full bg-slate-200/80 rounded-full h-2 overflow-hidden mb-1.5">
+              <div id="targetProgressBar" class="h-full bg-emerald-600 transition-all duration-200" style="width: 0%"></div>
+            </div>
+            <div class="flex justify-between items-center text-[10px] text-slate-500 font-mono">
+              <span id="charRatio">0 / 280 chars</span>
+              <span id="charPercent">0%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Platform Presets Grid -->
+        <div class="grid grid-cols-2 gap-2 mt-4 text-[11px]">
+          <div onclick="setPlatform('instagram')" class="p-2 border border-slate-100 rounded-lg bg-slate-50/70 hover:bg-slate-100 cursor-pointer transition-all flex items-center justify-between">
+            <span class="text-slate-600">Instagram</span>
+            <span class="font-mono font-bold text-slate-700">2,200</span>
+          </div>
+          <div onclick="setPlatform('linkedin')" class="p-2 border border-slate-100 rounded-lg bg-slate-50/70 hover:bg-slate-100 cursor-pointer transition-all flex items-center justify-between">
+            <span class="text-slate-600">LinkedIn</span>
+            <span class="font-mono font-bold text-slate-700">3,000</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Clean Footer -->
+  <footer class="w-full border-t border-slate-200/80 bg-white py-4 mt-auto">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+      <span>TextCraft — 100% Client-Side & Private (Text never leaves your browser)</span>
+      <span class="font-medium text-slate-400">Zero Ads · Zero Tracking · Instant Offline Ready</span>
+    </div>
+  </footer>
+
+  <!-- Vanilla JavaScript Logic -->
+  <script>
+    (function () {
+      const editor = document.getElementById("editor");
+      const statChars = document.getElementById("statChars");
+      const statCharsNoSpaces = document.getElementById("statCharsNoSpaces");
+      const statWords = document.getElementById("statWords");
+      const statSentences = document.getElementById("statSentences");
+      const statParagraphs = document.getElementById("statParagraphs");
+      const statReadingTime = document.getElementById("statReadingTime");
+
+      const btnUndo = document.getElementById("btnUndo");
+      const btnClear = document.getElementById("btnClear");
+      const btnCopy = document.getElementById("btnCopy");
+      const btnPaste = document.getElementById("btnPaste");
+      const btnDownload = document.getElementById("btnDownload");
+      const copyText = document.getElementById("copyText");
+
+      const targetPlatformLabel = document.getElementById("targetPlatformLabel");
+      const targetRemainingBadge = document.getElementById("targetRemainingBadge");
+      const targetProgressBar = document.getElementById("targetProgressBar");
+      const limitCard = document.getElementById("limitCard");
+      const charRatio = document.getElementById("charRatio");
+      const charPercent = document.getElementById("charPercent");
+
+      const platforms = {
+        twitter: { name: "Twitter / X Post", limit: 280 },
+        meta: { name: "Meta Description (SEO)", limit: 160 },
+        instagram: { name: "Instagram Caption", limit: 2200 },
+        linkedin: { name: "LinkedIn Post", limit: 3000 }
+      };
+
+      let activePlatformKey = "twitter";
+      const historyStack = [];
+
+      function pushHistory(text) {
+        historyStack.push(text);
+        if (historyStack.length > 25) historyStack.shift();
+        btnUndo.disabled = false;
+      }
+
+      function updateEditor(newText) {
+        if (newText === editor.value) return;
+        pushHistory(editor.value);
+        editor.value = newText;
+        calculate();
+      }
+
+      // Calculations & Counter
+      function calculate() {
+        const text = editor.value;
+        const chars = text.length;
+        const noSpaces = text.replace(/\s/g, "").length;
+        const words = text.trim() ? text.trim().split(/\s+/).filter(Boolean).length : 0;
+        const sentences = text.trim() ? text.split(/[.!?]+/).map(s => s.trim()).filter(Boolean).length : 0;
+        const paragraphs = text.trim() ? text.split(/\n+/).map(p => p.trim()).filter(Boolean).length : 0;
+        const readingMinutes = Math.max(1, Math.ceil(words / 200));
+
+        statChars.textContent = chars.toLocaleString();
+        statCharsNoSpaces.textContent = noSpaces.toLocaleString();
+        statWords.textContent = words.toLocaleString();
+        statSentences.textContent = sentences.toLocaleString();
+        statParagraphs.textContent = paragraphs.toLocaleString();
+        statReadingTime.textContent = words > 0 ? readingMinutes + "m" : "0m";
+
+        // Social Limits Calculation
+        const platform = platforms[activePlatformKey];
+        targetPlatformLabel.textContent = platform.name;
+
+        const remaining = platform.limit - chars;
+        const percent = Math.min(100, Math.round((chars / platform.limit) * 100));
+
+        charRatio.textContent = `${chars} / ${platform.limit} chars`;
+        charPercent.textContent = `${percent}%`;
+        targetProgressBar.style.width = percent + "%";
+
+        if (remaining < 0) {
+          // Over Limit (Danger)
+          limitCard.className = "p-3.5 rounded-xl border transition-all bg-rose-50/80 border-rose-300";
+          targetRemainingBadge.className = "text-xs font-extrabold font-mono text-rose-700";
+          targetRemainingBadge.textContent = `${Math.abs(remaining)} chars over limit!`;
+          targetProgressBar.className = "h-full bg-rose-600 transition-all duration-200";
+        } else if (remaining <= platform.limit * 0.15) {
+          // Near Limit (Warning)
+          limitCard.className = "p-3.5 rounded-xl border transition-all bg-amber-50/80 border-amber-300";
+          targetRemainingBadge.className = "text-xs font-extrabold font-mono text-amber-800";
+          targetRemainingBadge.textContent = `${remaining} chars left`;
+          targetProgressBar.className = "h-full bg-amber-500 transition-all duration-200";
+        } else {
+          // Safe Zone
+          limitCard.className = "p-3.5 rounded-xl border transition-all bg-emerald-50/60 border-emerald-200";
+          targetRemainingBadge.className = "text-xs font-extrabold font-mono text-emerald-700";
+          targetRemainingBadge.textContent = `${remaining} chars left`;
+          targetProgressBar.className = "h-full bg-emerald-600 transition-all duration-200";
+        }
+      }
+
+      window.setPlatform = function (key) {
+        if (!platforms[key]) return;
+        activePlatformKey = key;
+
+        // Update tab buttons visually
+        const tabTwitter = document.getElementById("tabTwitter");
+        const tabMeta = document.getElementById("tabMeta");
+        tabTwitter.className = "py-1.5 px-2 rounded-lg text-slate-600 hover:text-slate-900 transition-all";
+        tabMeta.className = "py-1.5 px-2 rounded-lg text-slate-600 hover:text-slate-900 transition-all";
+
+        if (key === "twitter") tabTwitter.className = "py-1.5 px-2 rounded-lg bg-white text-slate-900 shadow-xs transition-all";
+        if (key === "meta") tabMeta.className = "py-1.5 px-2 rounded-lg bg-white text-slate-900 shadow-xs transition-all";
+
+        calculate();
+      };
+
+      // 1. Text Formatting Options
+      document.getElementById("btnRemoveSpaces").onclick = function () {
+        if (!editor.value) return;
+        const cleaned = editor.value
+          .split("\n")
+          .map(line => line.replace(/[^\S\r\n]+/g, " ").trim())
+          .join("\n")
+          .trim();
+        updateEditor(cleaned);
+      };
+
+      document.getElementById("btnRemoveBreaks").onclick = function () {
+        if (!editor.value) return;
+        const cleaned = editor.value
+          .replace(/(\r\n|\n|\r)+/g, " ")
+          .replace(/[^\S\r\n]+/g, " ")
+          .trim();
+        updateEditor(cleaned);
+      };
+
+      document.getElementById("btnCleanTabs").onclick = function () {
+        if (!editor.value) return;
+        updateEditor(editor.value.replace(/\t+/g, " "));
+      };
+
+      document.getElementById("btnStripEmptyLines").onclick = function () {
+        if (!editor.value) return;
+        const cleaned = editor.value
+          .split(/\r?\n/)
+          .filter(line => line.trim().length > 0)
+          .join("\n");
+        updateEditor(cleaned);
+      };
+
+      document.getElementById("btnCleanAll").onclick = function () {
+        if (!editor.value) return;
+        const cleaned = editor.value
+          .replace(/\t+/g, " ")
+          .split(/\r?\n/)
+          .map(line => line.replace(/[^\S\r\n]+/g, " ").trim())
+          .filter(line => line.length > 0)
+          .join("\n");
+        updateEditor(cleaned);
+      };
+
+      // 2. Case Conversion
+      document.getElementById("btnUpper").onclick = function () {
+        if (!editor.value) return;
+        updateEditor(editor.value.toUpperCase());
+      };
+
+      document.getElementById("btnLower").onclick = function () {
+        if (!editor.value) return;
+        updateEditor(editor.value.toLowerCase());
+      };
+
+      document.getElementById("btnTitle").onclick = function () {
+        if (!editor.value) return;
+        const minor = new Set(["a","an","the","and","but","or","for","nor","on","at","to","from","by","in","of"]);
+        const cleaned = editor.value.toLowerCase().replace(/\b[a-z]+(\'[a-z]+)?\b/gi, (word, _, index) => {
+          if (index !== 0 && minor.has(word.toLowerCase())) return word.toLowerCase();
+          return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        });
+        updateEditor(cleaned);
+      };
+
+      document.getElementById("btnSentence").onclick = function () {
+        if (!editor.value) return;
+        const cleaned = editor.value.toLowerCase().replace(/(^\s*|[.!?]\s+)([a-z])/g, (_, p, c) => p + c.toUpperCase());
+        updateEditor(cleaned);
+      };
+
+      // Top Actions
+      btnUndo.onclick = function () {
+        if (historyStack.length > 0) {
+          editor.value = historyStack.pop();
+          if (historyStack.length === 0) btnUndo.disabled = true;
+          calculate();
+        }
+      };
+
+      btnClear.onclick = function () {
+        if (!editor.value) return;
+        updateEditor("");
+      };
+
+      btnPaste.onclick = async function () {
+        try {
+          const clipText = await navigator.clipboard.readText();
+          if (clipText) updateEditor(clipText);
+        } catch {
+          editor.focus();
+        }
+      };
+
+      btnCopy.onclick = async function () {
+        if (!editor.value) return;
+        try {
+          await navigator.clipboard.writeText(editor.value);
+        } catch {
+          editor.select();
+          document.execCommand("copy");
+        }
+        copyText.textContent = "Copied! ✓";
+        btnCopy.classList.replace("bg-brand-600", "bg-emerald-600");
+        setTimeout(() => {
+          copyText.textContent = "Copy Text";
+          btnCopy.classList.replace("bg-emerald-600", "bg-brand-600");
+        }, 1800);
+      };
+
+      btnDownload.onclick = function () {
+        if (!editor.value) return;
+        const blob = new Blob([editor.value], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "formatted-text.txt";
+        a.click();
+        URL.revokeObjectURL(url);
+      };
+
+      // Live Input Event
+      editor.addEventListener("input", calculate);
+      calculate();
+    })();
+  </script>
+</body>
+</html>

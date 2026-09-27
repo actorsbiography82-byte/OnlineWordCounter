@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Base64Craft — Instant Base64 Encoder & Decoder</title>
+  <meta name="description" content="Ultra-fast, UTF-8 compliant online Base64 encoder and decoder. Zero tracking, 100% client-side privacy, instant transformation." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230ea5e9' stroke-width='2'><path d='M7 8l-4 4 4 4M17 8l4 4-4 4M14 4l-4 16'/></svg>" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col selection:bg-brand-500 selection:text-white">
+
+  <!-- Minimal Header -->
+  <header class="w-full bg-white border-b border-slate-200/90 sticky top-0 z-30 shadow-xs">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="./index.html" class="w-9 h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center shadow-md shadow-brand-500/20 hover:bg-brand-700 transition-colors" title="Back to ToolCraft Hub">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 8l-4 4 4 4M17 8l4 4-4 4M14 4l-4 16"/>
+          </svg>
+        </a>
+        <div>
+          <span class="text-base font-extrabold tracking-tight text-slate-900 block leading-tight">Base64Craft</span>
+          <span class="text-[11px] font-medium text-slate-400 block -mt-0.5">UTF-8 Compliant Transformer</span>
+        </div>
+      </div>
+
+      <!-- Quick Status -->
+      <div class="flex items-center gap-2">
+        <a href="./index.html" class="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-slate-900 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors">
+          ← Hub Directory
+        </a>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-sky-50 text-sky-700 border border-sky-200">
+          <span class="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse"></span>
+          UTF-8 Safe (Emojis & Multi-language)
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Conversion Workspace (Above The Fold) -->
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 w-full flex-1 flex flex-col justify-center">
+
+    <!-- Controls Ribbon -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+      <!-- Mode Toggle Buttons -->
+      <div class="flex items-center p-1 bg-slate-200/80 rounded-xl text-xs font-bold w-full sm:w-auto">
+        <button id="btnModeEncode" onclick="setMode('encode')" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white text-slate-900 shadow-xs transition-all">
+          <span>Encode</span>
+          <span class="text-[10px] text-brand-600 font-mono font-medium">(Text → Base64)</span>
+        </button>
+        <button id="btnModeDecode" onclick="setMode('decode')" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition-all">
+          <span>Decode</span>
+          <span class="text-[10px] text-slate-400 font-mono font-medium">(Base64 → Text)</span>
+        </button>
+      </div>
+
+      <!-- Quick Action Utilities -->
+      <div class="flex items-center gap-2 self-end sm:self-center">
+        <button id="btnSwap" title="Swap Input & Output" class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 transition-all active:scale-95 group shadow-xs">
+          <svg id="swapIcon" class="w-3.5 h-3.5 text-slate-500 group-hover:rotate-180 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+          </svg>
+          <span>Swap</span>
+        </button>
+
+        <button id="btnClear" title="Clear all text" class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl border border-rose-200 text-rose-600 bg-rose-50/50 hover:bg-rose-100 transition-all active:scale-95 shadow-xs">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+          <span>Clear</span>
+        </button>
+
+        <button id="btnSample" title="Load sample data" class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 transition-all active:scale-95 shadow-xs">
+          <span>Sample</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Dual Editor Columns -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+
+      <!-- LEFT: Input Panel -->
+      <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm flex flex-col overflow-hidden">
+        <div class="px-4 py-3 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+            <span id="inputLabel" class="text-xs font-bold uppercase tracking-wider text-slate-700">Plain Text (Input)</span>
+          </div>
+          <span id="inputByteCount" class="text-[11px] font-mono text-slate-400">0 bytes</span>
+        </div>
+
+        <div class="relative flex-1 p-4">
+          <textarea
+            id="inputText"
+            rows="10"
+            placeholder="Type or paste your text here..."
+            class="w-full h-full min-h-[220px] text-sm text-slate-800 placeholder-slate-400 font-mono outline-none resize-y bg-transparent leading-relaxed"
+          ></textarea>
+        </div>
+
+        <div class="px-4 py-2 border-t border-slate-100 text-[11px] text-slate-400 flex items-center justify-between">
+          <span>Instant auto-transformation</span>
+          <button id="btnPaste" class="hover:text-slate-700 font-medium">Paste from clipboard</button>
+        </div>
+      </div>
+
+      <!-- RIGHT: Output Panel -->
+      <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm flex flex-col overflow-hidden">
+        <div class="px-4 py-3 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span id="outputStatusDot" class="w-2 h-2 rounded-full bg-brand-500"></span>
+            <span id="outputLabel" class="text-xs font-bold uppercase tracking-wider text-slate-700">Base64 Encoded (Output)</span>
+          </div>
+          <span id="outputByteCount" class="text-[11px] font-mono text-slate-400">0 bytes</span>
+        </div>
+
+        <div class="relative flex-1 p-4">
+          <textarea
+            id="outputText"
+            readonly
+            rows="10"
+            placeholder="Result will appear here automatically..."
+            class="w-full h-full min-h-[220px] text-sm text-slate-900 placeholder-slate-400 font-mono outline-none resize-y bg-transparent leading-relaxed select-all"
+          ></textarea>
+
+          <!-- Error Alert Banner -->
+          <div id="errorBanner" class="hidden absolute inset-x-4 top-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2 shadow-sm">
+            <svg class="w-4 h-4 text-rose-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+            <div>
+              <strong class="block font-bold">Invalid Base64 String</strong>
+              <span id="errorMessage" class="text-[11px] text-rose-700">The string contains invalid characters or incorrect padding.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="px-4 py-2.5 border-t border-slate-100 flex items-center justify-between">
+          <span id="sizeComparison" class="text-[11px] font-mono text-slate-400">Overhead: 0%</span>
+          <button id="btnCopy" class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-slate-900 hover:bg-black text-white text-xs font-bold transition-all active:scale-95 shadow-sm">
+            <svg id="copyIcon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+            </svg>
+            <span id="copyText">Copy Result</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Clean Footer -->
+  <footer class="w-full border-t border-slate-200 bg-white py-4 mt-auto">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+      <span>Base64Craft — 100% Client-Side Cryptographic Transformer</span>
+      <span class="text-slate-400">Zero Server Requests · Zero Ads · Instant Deployment</span>
+    </div>
+  </footer>
+
+  <!-- Instant Transformer Engine -->
+  <script>
+    (function () {
+      const inputText = document.getElementById("inputText");
+      const outputText = document.getElementById("outputText");
+      const inputLabel = document.getElementById("inputLabel");
+      const outputLabel = document.getElementById("outputLabel");
+      const inputByteCount = document.getElementById("inputByteCount");
+      const outputByteCount = document.getElementById("outputByteCount");
+      const sizeComparison = document.getElementById("sizeComparison");
+      const errorBanner = document.getElementById("errorBanner");
+      const errorMessage = document.getElementById("errorMessage");
+      const outputStatusDot = document.getElementById("outputStatusDot");
+
+      const btnModeEncode = document.getElementById("btnModeEncode");
+      const btnModeDecode = document.getElementById("btnModeDecode");
+      const btnSwap = document.getElementById("btnSwap");
+      const swapIcon = document.getElementById("swapIcon");
+      const btnClear = document.getElementById("btnClear");
+      const btnSample = document.getElementById("btnSample");
+      const btnPaste = document.getElementById("btnPaste");
+      const btnCopy = document.getElementById("btnCopy");
+      const copyText = document.getElementById("copyText");
+
+      let currentMode = "encode"; // "encode" | "decode"
+
+      // UTF-8 Safe Base64 Encoding
+      function utf8ToBase64(str) {
+        const bytes = new TextEncoder().encode(str);
+        let binary = '';
+        const len = bytes.byteLength;
+        for (let i = 0; i < len; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        return btoa(binary);
+      }
+
+      // UTF-8 Safe Base64 Decoding
+      function base64ToUtf8(b64) {
+        // Strip whitespace and line breaks
+        const cleanB64 = b64.replace(/\s+/g, '');
+        if (!cleanB64) return '';
+
+        // Validate characters
+        if (!/^[A-Za-z0-9+/=]+$/.test(cleanB64)) {
+          throw new Error("Input contains characters outside the Base64 alphabet.");
+        }
+
+        const binary = atob(cleanB64);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+          bytes[i] = binary.charCodeAt(i);
+        }
+        return new TextDecoder().decode(bytes);
+      }
+
+      // Main Transformation Trigger
+      function transform() {
+        const value = inputText.value;
+        const inputBytes = new Blob([value]).size;
+        inputByteCount.textContent = `${inputBytes.toLocaleString()} bytes`;
+
+        if (!value.trim()) {
+          outputText.value = "";
+          outputByteCount.textContent = "0 bytes";
+          sizeComparison.textContent = "Overhead: 0%";
+          hideError();
+          return;
+        }
+
+        if (currentMode === "encode") {
+          try {
+            const encoded = utf8ToBase64(value);
+            outputText.value = encoded;
+            const outBytes = new Blob([encoded]).size;
+            outputByteCount.textContent = `${outBytes.toLocaleString()} bytes`;
+            const diff = inputBytes > 0 ? Math.round(((outBytes - inputBytes) / inputBytes) * 100) : 0;
+            sizeComparison.textContent = `Overhead: +${diff}%`;
+            hideError();
+          } catch (err) {
+            showError("Encoding error: " + err.message);
+          }
+        } else {
+          // Decode Mode
+          try {
+            const decoded = base64ToUtf8(value);
+            outputText.value = decoded;
+            const outBytes = new Blob([decoded]).size;
+            outputByteCount.textContent = `${outBytes.toLocaleString()} bytes`;
+            const savings = inputBytes > 0 ? Math.round(((inputBytes - outBytes) / inputBytes) * 100) : 0;
+            sizeComparison.textContent = `Decoded: -${savings}% size`;
+            hideError();
+          } catch (err) {
+            outputText.value = "";
+            outputByteCount.textContent = "0 bytes";
+            sizeComparison.textContent = "Error";
+            showError(err.message || "Malformed Base64 payload. Check padding or characters.");
+          }
+        }
+      }
+
+      function showError(msg) {
+        errorMessage.textContent = msg;
+        errorBanner.classList.remove("hidden");
+        outputStatusDot.className = "w-2 h-2 rounded-full bg-rose-500";
+      }
+
+      function hideError() {
+        errorBanner.classList.add("hidden");
+        outputStatusDot.className = "w-2 h-2 rounded-full bg-brand-500";
+      }
+
+      // Mode Switcher
+      window.setMode = function (mode) {
+        if (currentMode === mode) return;
+        currentMode = mode;
+
+        if (mode === "encode") {
+          btnModeEncode.className = "flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white text-slate-900 shadow-xs transition-all";
+          btnModeDecode.className = "flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition-all";
+          inputLabel.textContent = "Plain Text (Input)";
+          outputLabel.textContent = "Base64 Encoded (Output)";
+          inputText.placeholder = "Type or paste your text here to encode...";
+        } else {
+          btnModeDecode.className = "flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white text-slate-900 shadow-xs transition-all";
+          btnModeEncode.className = "flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition-all";
+          inputLabel.textContent = "Base64 String (Input)";
+          outputLabel.textContent = "Decoded Text (Output)";
+          inputText.placeholder = "Paste your Base64 string here to decode...";
+        }
+
+        transform();
+      };
+
+      // Swap Action
+      btnSwap.addEventListener("click", () => {
+        swapIcon.classList.add("rotate-180");
+        setTimeout(() => swapIcon.classList.remove("rotate-180"), 300);
+
+        const currentOutput = outputText.value;
+        if (currentOutput) {
+          inputText.value = currentOutput;
+        }
+        setMode(currentMode === "encode" ? "decode" : "encode");
+      });
+
+      // Clear Action
+      btnClear.addEventListener("click", () => {
+        inputText.value = "";
+        transform();
+      });
+
+      // Sample Data Loader
+      btnSample.addEventListener("click", () => {
+        if (currentMode === "encode") {
+          inputText.value = "Hello World! 🚀 Secure UTF-8 Base64 testing.";
+        } else {
+          inputText.value = "SGVsbG8gV29ybGQhIPCfmYAgU2VjdXJlIFVURi04IEJhc2U2NCB0ZXN0aW5nLg==";
+        }
+        transform();
+      });
+
+      // Paste from Clipboard
+      btnPaste.addEventListener("click", async () => {
+        try {
+          const text = await navigator.clipboard.readText();
+          if (text) {
+            inputText.value = text;
+            transform();
+          }
+        } catch {
+          inputText.focus();
+        }
+      });
+
+      // Copy Action
+      btnCopy.addEventListener("click", async () => {
+        const text = outputText.value;
+        if (!text) return;
+
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch {
+          outputText.select();
+          document.execCommand("copy");
+        }
+
+        copyText.textContent = "Copied! ✓";
+        btnCopy.classList.replace("bg-slate-900", "bg-emerald-600");
+
+        setTimeout(() => {
+          copyText.textContent = "Copy Result";
+          btnCopy.classList.replace("bg-emerald-600", "bg-slate-900");
+        }, 1600);
+      });
+
+      // Real-Time Event
+      inputText.addEventListener("input", transform);
+
+      // Initial sample load
+      inputText.value = "Hello World! 🚀 Welcome to Base64Craft.";
+      transform();
+    })();
+  </script>
+</body>
+</html>
